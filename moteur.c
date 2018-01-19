@@ -1,13 +1,13 @@
+
+#include <msp430.h>
+#include <moteur.h>
 /*
  * moteur.c
  *
  *  Created on: 19 janv. 2018
  *      Author: j.mosnino.15
  */
-void init_moteurs(void);
-void puissance_moteurs(int pourcentageA, int pourcentageB);
-void moteurs_avancer(void);
-void moteurs_tourne_gauch(void);
+
 
 
 void init_moteurs(void) {
@@ -35,16 +35,36 @@ void moteurs_avancer(void) {
 	P2OUT |= (BIT5);
 	P2OUT &= ~(BIT1);
 }
-
-void moteurs_tourne_gauch(void){
+void moteur_tourne_gauch(void){
 	int i;
-	P2OUT &= ~(BIT5);
-	P2OUT &= ~(BIT1);
-	
-	puissance_moteur (60,60);
-	
-	for(i=0; i<10000;i++);
-	
-	puissancemoteur (0,0);
+	int j;
+
+	P2OUT |= (BIT5);
+	P2OUT |= (BIT1);
+
+	//pour le robot vitesse lente
+	//puissance_moteurs(60,60);
+	puissance_moteurs(20,20);
+
+	for(i=0;i<5;i++){
+	for(j=0;j<15000;j++);
+	}
+	puissance_moteurs(0,0);
 }
 
+void moteur_tourne_droit(void){
+	int i;
+	int j;
+
+	P2OUT &= ~(BIT5);
+	P2OUT &= ~(BIT1);
+
+	//pour le robot vitesse lente
+	//puissance_moteurs(60,60);
+	puissance_moteurs(20,20);
+
+	for(i=0;i<5;i++){
+	for(j=0;j<15000;j++);
+	}
+	puissance_moteurs(0,0);
+}
