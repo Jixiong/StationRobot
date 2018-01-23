@@ -1,7 +1,7 @@
-#include <msp430.h> 
+/*#include <msp430.h>
 #include <ADC.h>
 #include <Afficheur.h>
-
+*/
 
 //1023 = 5
 
@@ -13,7 +13,7 @@
 //on arrêtre qhhhhhh
 
 
-
+/*
 
 void init_moteurs(void);
 void puissance_moteurs(int pourcentageA, int pourcentageB);
@@ -22,10 +22,13 @@ void moteurs_avancer(void);
 void init_suivi_ligne(void);
 int suivi1(void);
 int suivi2(void);
+*/
 
 /*
  * main.c
  */
+
+/*
 int main(void) {
 	volatile int i;
 	volatile int suivi_gauche, suivi_droit;
@@ -109,4 +112,4 @@ void moteurs_avancer(void) {
 	P2OUT |= (BIT5);
 	P2OUT &= ~(BIT1);
 }
-
+*/

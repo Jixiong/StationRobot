@@ -10,7 +10,7 @@
  */
 
 int lire_le_capteur_infra(int port){
-	int resultat,
+	int resultat;
 
 	ADC_init();
 
