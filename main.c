@@ -1,6 +1,5 @@
 //voici la preuve 1 pour la projet de MicroP
 
-
 #include <msp430.h> 
 #include <ADC.h>
 #include <moteur.h>
@@ -11,138 +10,85 @@
  * main.c
  */
 
-
 //on arrêtre qhhhhhh
-
-
-
-
-void init_suivi_ligne(void);
-int suivi1(void);
-int suivi2(void);
 void init_IR(void);
 /*
  * main.c
  */
- int main(void) {
-	volatile int i,j;
-	volatile int suivi_gauche, suivi_droit;
+int main(void) {
+	volatile int i, j;
 
-	volatile int resultat=0;
+	volatile int resultat = 0;
 	volatile double tension;
 
 	volatile int vitess;
 	volatile int vitess_droite;
 
+	volatile int butoir = 0; //quand butoir = 0 accélération
 
-	volatile int butoir = 0;//quand butoir = 0 accélération
+	WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
+	BCSCTL1 = CALBC1_1MHZ;
+	DCOCTL = CALDCO_1MHZ;
 
+	vitess = 0; //Ici, c'est pour initialiser la valeur de vitess à 0
+	ADC_init();
+	init_IR();
 
-    WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
-    BCSCTL1= CALBC1_1MHZ;
-    DCOCTL= CALDCO_1MHZ;
+	init_moteurs();
+	//puissance_moteurs(vitess,vitess);
+	moteurs_avancer();
+	//puissance_moteurs(vitess,vitess);
 
-    vitess = 0; //Ici, c'est pour initialiser la valeur de vitess à 60
-    ADC_init();
-    init_IR();
+	while (1) {
+		ADC_Demarrer_conversion(0);
+		resultat = ADC_Lire_resultat();
 
-    init_moteurs();
-    puissance_moteurs(vitess,vitess);
-    moteurs_avancer();
-    //puissance_moteurs(vitess,vitess);
+		//la période de accélération
+		if ((vitess < 70) && (butoir == 0)) {
+			vitess += 5;
+			if (vitess > 30) {
+				vitess_droite = vitess + 4.5;
+			} else {
 
-    for (i=0;i<30000;i++);
+				vitess_droite = vitess;
+			}
+			puissance_moteurs(vitess, vitess_droite);
 
-    while(1){
-    	ADC_Demarrer_conversion(0);
-    	resultat = ADC_Lire_resultat();
+		}
 
+		//la période de ralentir
+		if ((vitess >= 20) && (butoir == 1)) {
+			vitess -= 10;
+			puissance_moteurs(vitess + 0.25, vitess);
+		}
 
-    	//la période de accélération
-    	if((vitess < 80)&&(butoir==0)){
-    			vitess += 5;
-    			if(vitess > 50){
-    				vitess_droite = vitess;
-    			}
-    			else if(vitess > 70){
-    				vitess_droite = vitess-1;
-    			}
-    			else{
-    			vitess_droite = vitess;
-    			}
-    			puissance_moteurs(vitess,vitess_droite);
+		//Pour changer la mode d'acce
+		if (resultat > 160) {
+			butoir = 1;
+		}
 
+		if (resultat < 160) {
+			butoir = 0;
+		}
 
-    	}
+		//Pour arrêtre le robot
+		if (resultat > 430) {
+			puissance_moteurs(0, 0);
 
-    	//la période de ralentir
-    	if ((vitess >= 20)&&(butoir == 1)){
-    			vitess -= 10;
-    		    puissance_moteurs(vitess,vitess);
-    	}
-
-
-
-
-    	//Pour changer la mode d'acce
-        if (resultat > 400){
-        	butoir = 1;
-    	}
-
-        if (resultat < 400){
-            //butoir = 0 ;
-        }
+		}
 
 
-
-
-
-        //Pour arrêtre le robot
-    	if (resultat > 320){
-
-    		puissance_moteurs(0, 0);
-    	}
-
-
-        for (i=0;i<3000;i++);
-    	}
+//for (i=0;i<3000;i++);
+	}
 
 	return 0;
 }
 
-
-
-
-void init_IR(void){
+void init_IR(void) {
 
 	P1SEL &= ~BIT0;
 	P1SEL2 &= ~BIT0;
-	P1DIR &=~ BIT0;
-
+	P1DIR &= ~ BIT0;
 
 }
-
-int suivi1(void) {
-	//surface blanche : Vout petit
-	ADC_Demarrer_conversion(7);
-	volatile int sol = ADC_Lire_resultat();
-
-	return sol;
-}
-
-int suivi2(void) {
-	//surface blanche : Vout petit
-	ADC_Demarrer_conversion(5);
-	volatile int sol = ADC_Lire_resultat();
-
-	return sol;
-}
-
-void init_suivi_ligne(void) {
-	P1SEL &= ~(BIT7 | BIT5);
-	P1SEL2 &= ~(BIT7 | BIT5);
-
-	P1DIR &= ~(BIT7 | BIT5);
-}
-
 
